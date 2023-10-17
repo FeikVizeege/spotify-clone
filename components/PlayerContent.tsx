@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Song } from "@/types";
 import { BsPauseFill, BsPlayFill } from "react-icons/bs"
 import { AiFillStepBackward, AiFillStepForward } from "react-icons/ai";
@@ -9,6 +9,9 @@ import MediaItem from "./MediaItem";
 import LikeButton from "./LikeButton";
 import Slider from "./Slider";
 import usePlayer from "@/hooks/usePlayer";
+
+// since import not working
+const useSound = require('use-sound');
 
 interface PlayerContentProps {
     song: Song;
@@ -56,6 +59,44 @@ const PlayerContent: React.FC<PlayerContentProps> = ({
         }
 
         player.setId(prevSong);
+    };
+
+    const [play, { pause, sound }] = useSound(
+        songUrl,
+        {
+            volume: volume,
+            onplay: () => setIsPlaying(true),
+            onend: () => {
+                setIsPlaying(false);
+                onPlayNext();
+            },
+            onpause: () => setIsPlaying(false),
+            format: ['mp3']
+        }
+    );
+
+    useEffect(() => {
+        sound?.play();
+
+        return () => {
+            sound?.unload();
+        }
+    }, [sound]);
+
+    const handlePlay = () => {
+        if (!isPlaying) {
+            play();
+        } else {
+            pause();
+        }
+    };
+
+    const toggleMute = () => {
+        if (volume === 0) {
+            setVolume(1);
+        } else {
+            setVolume(0);
+        }
     }
 
     return (
@@ -124,7 +165,7 @@ const PlayerContent: React.FC<PlayerContentProps> = ({
                         transition
                     "
                 />
-                <div onClick={() => {}}
+                <div onClick={handlePlay}
                     className="
                         flex
                         items-center
@@ -160,11 +201,14 @@ const PlayerContent: React.FC<PlayerContentProps> = ({
             >
                 <div className="flex items-center gap-x-2 w-[120px]">
                     <VolumeIcon
-                        onClick={() => {}}
+                        onClick={toggleMute}
                         className="cursor-pointer"
                         size={34}
                     />
-                    <Slider/>
+                    <Slider
+                        value={volume}
+                        onChange={(value) => setVolume(value)}
+                    />
                 </div>
             </div>
         </div>
