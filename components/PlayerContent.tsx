@@ -11,7 +11,7 @@ import Slider from "./Slider";
 import usePlayer from "@/hooks/usePlayer";
 
 // since import not working
-const useSound = require('use-sound');
+const { useSound } = require('use-sound');
 
 interface PlayerContentProps {
     song: Song;
